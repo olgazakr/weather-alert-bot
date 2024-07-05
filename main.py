@@ -1,7 +1,7 @@
 import asyncio
 import os
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
@@ -12,6 +12,11 @@ dp = Dispatcher()
 @dp.message(CommandStart())
 async def start(message: Message):
     await message.answer('Напишите населённый пункт, на который Вы хотите настроить бота.')
+
+
+@dp.message(F.text)
+async def echo(message: Message):
+    await message.answer('Населённый пункт установлен. Ожидайте ответа.')
 
 
 async def main():
