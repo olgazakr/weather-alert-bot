@@ -1,6 +1,7 @@
 import asyncio
 import os
 import logging
+import location_request
 
 from dotenv import load_dotenv, find_dotenv
 from aiogram import Bot, Dispatcher, F
@@ -19,8 +20,15 @@ async def start(message: Message):
 
 @dp.message(F.text)
 async def echo(message: Message):
-    await message.answer('Населённый пункт установлен. Ожидайте ответа.')
+    location = message.text
+    possible_locations = location_request.make_request(location, os.getenv('WEATHER_TOKEN'))
 
+    if len(possible_locations) > 1:
+        i = 1
+        await message.answer(f'Найдено {len(possible_locations)} населённых пунктов. Введите номер одного из них:')
+        for location in possible_locations:
+            await message.answer(f'{i}. {location["name"]}, {location["state"]}, {location["country"]}')
+            i += 1
 
 async def main():
     await dp.start_polling(bot)
