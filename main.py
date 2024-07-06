@@ -29,6 +29,10 @@ async def echo(message: Message):
         for location in possible_locations:
             await message.answer(f'{i}. {location["name"]}, {location["state"]}, {location["country"]}')
             i += 1
+    elif len(possible_locations) == 1:
+        await message.answer(f'Вы выбрали: {possible_locations[0]["name"]}, '
+                             f'{possible_locations[0]["country"]}, '
+                             f'{possible_locations[0]["state"]}')
 
 async def main():
     await dp.start_polling(bot)
