@@ -1,6 +1,7 @@
 import location_request
 import os
 import keyboards
+import weather_request
 
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
@@ -29,7 +30,7 @@ async def start_bot(message: Message, state: FSMContext):
 @router.message(Location.found_locations)
 async def find_locations(message: Message, state: FSMContext):
     location = message.text
-    possible_locations = location_request.make_request(location, os.getenv('WEATHER_TOKEN'))
+    possible_locations = await location_request.make_request(location, os.getenv('WEATHER_TOKEN'))
     await state.update_data(found_locations=possible_locations)
     i = 1
     answer = f'Найдено {len(possible_locations)} населённых пунктов. Выберите один из списка:\n'
@@ -44,9 +45,15 @@ async def find_locations(message: Message, state: FSMContext):
 async def select_location(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     answer = data['found_locations'][int(callback.data) - 1]
-    await callback.message.answer(f'Вы выбрали: {answer["name"]}, '
-                                  f'{answer["country"]}, '
-                                  f'{answer["state"]}, '
-                                  f'координаты: {answer["lat"]}, '
-                                  f'{answer["lon"]}')
+    await callback.message.edit_text(f'Вы выбрали: {answer["name"]}, '
+                                    f'{answer["country"]}, '
+                                    f'{answer["state"]}, '
+                                    f'координаты: {answer["lat"]}, '
+                                    f'{answer["lon"]}')
+    
+    weather = await weather_request.make_request(answer['lat'], answer['lon'], os.getenv('WEATHER_TOKEN'))
+    answer = f'На данный момент: {weather}'
+
+    await callback.message.answer(answer)
+
     await state.clear()
