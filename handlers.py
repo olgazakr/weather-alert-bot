@@ -1,8 +1,9 @@
 import location_request
 import os
+import keyboards
 
 from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram import F, Router
 from dotenv import load_dotenv, find_dotenv
 
@@ -17,16 +18,17 @@ async def start(message: Message):
 
 
 @router.message(F.text)
-async def echo(message: Message):
+async def select_location(message: Message):
     location = message.text
     possible_locations = location_request.make_request(location, os.getenv('WEATHER_TOKEN'))
 
     if len(possible_locations) > 1:
         i = 1
-        await message.answer(f'Найдено {len(possible_locations)} населённых пунктов. Введите номер одного из них:')
+        answer = f'Найдено {len(possible_locations)} населённых пунктов. Выберите один из списка:\n'
         for location in possible_locations:
-            await message.answer(f'{i}. {location["name"]}, {location["state"]}, {location["country"]}')
+            answer += f'{i}. {location["name"]}, {location["country"]}, {location["state"]}\n'
             i += 1
+        await message.answer(answer, reply_markup=await keyboards.get_keyboard(possible_locations))
     elif len(possible_locations) == 1:
         await message.answer(f'Вы выбрали: {possible_locations[0]["name"]}, '
                              f'{possible_locations[0]["country"]}, '
