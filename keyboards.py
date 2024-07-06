@@ -8,7 +8,7 @@ async def get_keyboard(possible_locations) -> InlineKeyboardMarkup:
     for location in possible_locations:
         keyboard.add(
             InlineKeyboardButton(
-                text=f'{i}', callback_data=f'select_location_{i}'
+                text=f'{i}', callback_data=f'{i}'
             )
         )
         i += 1
