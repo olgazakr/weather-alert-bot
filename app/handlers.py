@@ -1,3 +1,7 @@
+"""
+Module that contains the handlers for the bot's commands and states.
+"""
+
 import os
 
 import app.database.requests as requests
@@ -16,7 +20,11 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 router = Router()
 
+
 class Location(StatesGroup):
+    """
+    Class that represents the states of the bot.
+    """
     input_location = State()
     found_locations = State()
     select_location = State()
@@ -24,15 +32,24 @@ class Location(StatesGroup):
 
 @router.message(CommandStart())
 async def start_bot(message: Message, state: FSMContext):
+    """
+    Handler for the /start command.
+    Sets the user in the database and starts the bot's state machine.
+    """
     await requests.set_user(message.from_user.id)
     await state.set_state(Location.input_location)
     await message.answer('Напишите населённый пункт,'
-                         'на который Вы хотите настроить бота.')
+                         'на который Вы хотите настроить бота 🌎🌏🌍')
     await state.set_state(Location.found_locations)
 
 
 @router.message(Location.found_locations)
 async def find_locations(message: Message, state: FSMContext):
+    """
+    Handler for the found_locations state.
+    Sends a message with the list of possible locations to select and
+    updates the state.
+    """
     location = message.text
     possible_locations = await location_request.make_request(
         location,
@@ -40,7 +57,7 @@ async def find_locations(message: Message, state: FSMContext):
     )
     await state.update_data(found_locations=possible_locations)
     i = 1
-    answer = f'Найдено {len(possible_locations)} населённых пунктов.' \
+    answer = f'Найдено {len(possible_locations)} населённых пунктов 🌇\n' \
               'Выберите один из списка:\n'
     for location in possible_locations:
         answer += f'{i}. {location["name"]}, ' \
@@ -56,6 +73,11 @@ async def find_locations(message: Message, state: FSMContext):
 
 @router.callback_query(Location.select_location)
 async def select_location(callback: CallbackQuery, state: FSMContext):
+    """
+    Handler for the select_location state.
+    Sets the user's coordinates in the database and sends a message with
+    the weather conditions.
+    """
     data = await state.get_data()
     answer = data['found_locations'][int(callback.data) - 1]
     await callback.message.edit_text(f'Вы выбрали: {answer["name"]}, '
@@ -81,11 +103,17 @@ async def select_location(callback: CallbackQuery, state: FSMContext):
         weather_message = "Не удалось получить данные о погоде."
     else:
         weather_message = f'{weather["weather"][0]["description"]}, ' \
-                          f'{weather["main"]["temp"]}°C, ' \
-                          f'скорость ветра: {weather["wind"]["speed"]} м/с'
+                          f'температура: {weather["main"]["temp"]}°C 🌡️, ' \
+                          f'скорость ветра: {weather["wind"]["speed"]} м/с 🌬️'
 
     answer = f'На данный момент: {weather_message}\n' \
-              'Вы получите уведомление, если погодные условия ухудшатся.'
+              'Бот отслеживает погодные условия в режиме реального времени 🕰️\n' \
+              'Он уведомит Вас, если в вашей локации: \n' \
+              '1. Температура поднимется выше 35°С или опустится ниже -15°С\n' \
+              '2. Скорость ветра превысит 10 м/с\n' \
+              '3. Выпадение осадков: дождь 🌧️, снегопад 🌨️, гроза ⛈️\n' \
+              '4. Условия ограниченной видимости: туман, мгла 🌫️\n' \
+              '5. Экстремальные явления: торнадо 🌪️, выпадение вулканического пепла 🌋'
 
     await callback.message.answer(answer)
 
