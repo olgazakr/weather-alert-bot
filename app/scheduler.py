@@ -10,7 +10,9 @@ if severe weather conditions are detected. It uses the :class:`Bot` class from
 :type token: str
 """
 import logging
+import os
 
+from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from app.weather_request import make_request
@@ -78,14 +80,21 @@ def start_scheduler(bot: Bot, token: str):
     :type token: str
     """
     # Create an asynchronous scheduler
-    scheduler = AsyncIOScheduler()
-
+    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
     # Add a job to the scheduler
     scheduler.add_job(
         fetch_and_notify_users,  # Function to execute
         IntervalTrigger(minutes=1),  # Interval between job executions
         args=[bot, token]  # Arguments to pass to the function
     )
-
     # Start the scheduler
     scheduler.start()
+    # Set up logging
+    logger = logging.getLogger('scheduler')
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    file_handler = logging.FileHandler(os.path.join('logs', 'scheduler_log.txt'))
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logger.info("Scheduler started at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
