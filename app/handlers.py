@@ -1,7 +1,7 @@
-import location_request
 import os
-import keyboards
-import weather_request
+import app.keyboards as keyboards
+import app.weather_request as weather_request
+import app.location_request as location_request
 
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery

@@ -4,7 +4,7 @@ import logging
 
 from dotenv import load_dotenv, find_dotenv
 from aiogram import Bot, Dispatcher
-from handlers import router
+from app.handlers import router
 
 
 async def main():
