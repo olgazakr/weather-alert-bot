@@ -1,4 +1,6 @@
 import os
+
+import app.database.requests as requests
 import app.keyboards as keyboards
 import app.weather_request as weather_request
 import app.location_request as location_request
@@ -22,6 +24,7 @@ class Location(StatesGroup):
 
 @router.message(CommandStart())
 async def start_bot(message: Message, state: FSMContext):
+    await requests.set_user(message.from_user.id)
     await state.set_state(Location.input_location)
     await message.answer('Напишите населённый пункт,'
                          'на который Вы хотите настроить бота.')
