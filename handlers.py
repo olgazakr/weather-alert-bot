@@ -52,7 +52,7 @@ async def select_location(callback: CallbackQuery, state: FSMContext):
                                     f'{answer["lon"]}')
     
     weather = await weather_request.make_request(answer['lat'], answer['lon'], os.getenv('WEATHER_TOKEN'))
-    answer = f'На данный момент: {weather}'
+    answer = f'На данный момент: {weather}\nВы получите уведомление, если погодные условия ухудшатся.'
 
     await callback.message.answer(answer)
 

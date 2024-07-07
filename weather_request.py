@@ -8,7 +8,7 @@ async def make_request(lat, lon, token) -> list:
     with open('logs/weather_request_log.txt', 'a', encoding='utf-8') as file:
         file.write(f'{"-"*20}START REQUEST{"-"*20}\n')
         try:
-            url = f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&appid={token}'
+            url = f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&units=metric&appid={token}'
 
             response = requests.get(url, timeout=10)
             response.raise_for_status()
@@ -17,9 +17,11 @@ async def make_request(lat, lon, token) -> list:
             logger.info(data)
             file.write(f'Incoming data: {data}\n')
 
-            main = str(data['weather'][0]['description'])
+            user_response_data = str(data['weather'][0]['description']) + ', ' + \
+                   str(data['main']['temp']) + '°C, скорость ветра: ' + \
+                   str(data['wind']['speed']) + ' м/с'
             file.write(f'{"-"*20}END REQUEST{"-"*20}\n')
-            return main
+            return user_response_data
         except ConnectionError:
             error_message = "ConnectionError"
             logger.error(error_message)
