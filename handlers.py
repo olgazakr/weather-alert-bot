@@ -23,21 +23,31 @@ class Location(StatesGroup):
 @router.message(CommandStart())
 async def start_bot(message: Message, state: FSMContext):
     await state.set_state(Location.input_location)
-    await message.answer('Напишите населённый пункт, на который Вы хотите настроить бота.')
+    await message.answer('Напишите населённый пункт,'
+                         'на который Вы хотите настроить бота.')
     await state.set_state(Location.found_locations)
 
 
 @router.message(Location.found_locations)
 async def find_locations(message: Message, state: FSMContext):
     location = message.text
-    possible_locations = await location_request.make_request(location, os.getenv('WEATHER_TOKEN'))
+    possible_locations = await location_request.make_request(
+        location,
+        os.getenv('WEATHER_TOKEN')
+    )
     await state.update_data(found_locations=possible_locations)
     i = 1
-    answer = f'Найдено {len(possible_locations)} населённых пунктов. Выберите один из списка:\n'
+    answer = f'Найдено {len(possible_locations)} населённых пунктов.' \
+              'Выберите один из списка:\n'
     for location in possible_locations:
-        answer += f'{i}. {location["name"]}, {location["country"]}, {location["state"]}\n'
+        answer += f'{i}. {location["name"]}, ' \
+                  f'{location["country"]}, ' \
+                  f'{location["state"]}\n'
         i += 1
-    await message.answer(answer, reply_markup=await keyboards.get_keyboard(possible_locations))
+    await message.answer(
+        answer,
+        reply_markup=await keyboards.get_keyboard(possible_locations)
+    )
     await state.set_state(Location.select_location)
 
 
@@ -49,10 +59,16 @@ async def select_location(callback: CallbackQuery, state: FSMContext):
                                     f'{answer["country"]}, '
                                     f'{answer["state"]}, '
                                     f'координаты: {answer["lat"]}, '
-                                    f'{answer["lon"]}')
+                                    f'{answer["lon"]}'
+                                )
     
-    weather = await weather_request.make_request(answer['lat'], answer['lon'], os.getenv('WEATHER_TOKEN'))
-    answer = f'На данный момент: {weather}\nВы получите уведомление, если погодные условия ухудшатся.'
+    weather = await weather_request.make_request(
+        answer['lat'],
+        answer['lon'],
+        os.getenv('WEATHER_TOKEN')
+    )
+    answer = f'На данный момент: {weather}\n' \
+              'Вы получите уведомление, если погодные условия ухудшатся.'
 
     await callback.message.answer(answer)
 

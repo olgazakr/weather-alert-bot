@@ -1,7 +1,8 @@
 import logging
 import requests
 
-from requests.exceptions import HTTPError, Timeout, ConnectionError, RequestException
+from requests.exceptions import (HTTPError, Timeout,
+                                 ConnectionError, RequestException)
 
 
 async def make_request(location, token) -> list:

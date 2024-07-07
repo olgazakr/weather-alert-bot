@@ -1,7 +1,8 @@
 import logging
 import requests
 
-from requests.exceptions import HTTPError, Timeout, ConnectionError, RequestException
+from requests.exceptions import (HTTPError, Timeout,
+                                 ConnectionError, RequestException)
 
 async def make_request(lat, lon, token) -> list:
     logger = logging.getLogger('weather_request')
