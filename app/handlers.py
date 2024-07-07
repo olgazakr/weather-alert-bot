@@ -65,6 +65,12 @@ async def select_location(callback: CallbackQuery, state: FSMContext):
                                     f'{answer["lon"]}'
                                 )
     
+    await requests.set_coordinates_for_user(
+        callback.from_user.id,
+        answer['lat'],
+        answer['lon']
+    )
+    
     weather = await weather_request.make_request(
         answer['lat'],
         answer['lon'],
