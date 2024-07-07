@@ -1,6 +1,7 @@
 # FEATURES
 
 - Location request
+- Weather request
 
 ## Requirements
 
