@@ -6,6 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 from aiogram import Bot, Dispatcher
 from app.handlers import router
 from app.database.models import async_main
+from app.scheduler import start_scheduler
 
 
 async def main():
@@ -14,8 +15,10 @@ async def main():
     
     bot = Bot(token=os.getenv('TOKEN'))
     dp = Dispatcher()
-
     dp.include_router(router)
+
+    start_scheduler(bot, os.getenv('WEATHER_TOKEN'))
+
     await dp.start_polling(bot)
 
 

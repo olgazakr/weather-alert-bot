@@ -4,7 +4,7 @@ import requests
 from requests.exceptions import (HTTPError, Timeout,
                                  ConnectionError, RequestException)
 
-async def make_request(lat, lon, token) -> list:
+async def make_request(lat: float, lon: float, token: str) -> list:
     logger = logging.getLogger('weather_request')
     with open('logs/weather_request_log.txt', 'a', encoding='utf-8') as file:
         file.write(f'{"-"*20}START REQUEST{"-"*20}\n')

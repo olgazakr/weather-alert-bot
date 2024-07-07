@@ -5,7 +5,7 @@ from requests.exceptions import (HTTPError, Timeout,
                                  ConnectionError, RequestException)
 
 
-async def make_request(location, token) -> list:
+async def make_request(location: str, token: str) -> list:
     logger = logging.getLogger('location_request')
     with open('logs/location_request_log.txt', 'a', encoding='utf-8') as file:
         file.write(f'{"-"*20}START REQUEST{"-"*20}\n')
