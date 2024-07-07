@@ -76,7 +76,15 @@ async def select_location(callback: CallbackQuery, state: FSMContext):
         answer['lon'],
         os.getenv('WEATHER_TOKEN')
     )
-    answer = f'На данный момент: {weather}\n' \
+    
+    if "error" in weather:
+        weather_message = "Не удалось получить данные о погоде."
+    else:
+        weather_message = f'{weather["weather"][0]["description"]}, ' \
+                          f'{weather["main"]["temp"]}°C, ' \
+                          f'скорость ветра: {weather["wind"]["speed"]} м/с'
+
+    answer = f'На данный момент: {weather_message}\n' \
               'Вы получите уведомление, если погодные условия ухудшатся.'
 
     await callback.message.answer(answer)

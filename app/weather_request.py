@@ -17,29 +17,11 @@ async def make_request(lat: float, lon: float, token: str) -> list:
             data = response.json()
             logger.info(data)
             file.write(f'Incoming data: {data}\n')
-
-            user_response_data = str(data['weather'][0]['description']) + ', ' + \
-                   str(data['main']['temp']) + '°C, скорость ветра: ' + \
-                   str(data['wind']['speed']) + ' м/с'
             file.write(f'{"-"*20}END REQUEST{"-"*20}\n')
-            return user_response_data
-        except ConnectionError:
-            error_message = "ConnectionError"
-            logger.error(error_message)
-            file.write(f'{error_message}\n')
+            return data
+        except (ConnectionError, Timeout, HTTPError, RequestException) as error:
+            error_message = str(error)
+            logger.error(error)
+            file.write(f'Error: {error}\n')
             file.write(f'{"-"*20}END REQUEST{"-"*20}\n')
-        except Timeout:
-            error_message = "Timeout"
-            logger.error(error_message)
-            file.write(f'{error_message}\n')
-            file.write(f'{"-"*20}END REQUEST{"-"*20}\n')
-        except HTTPError:
-            error_message = "HTTPError"
-            logger.error(error_message)
-            file.write(f'{error_message}\n')
-            file.write(f'{"-"*20}END REQUEST{"-"*20}\n')
-        except RequestException:
-            error_message = "RequestException"
-            logger.error(error_message)
-            file.write(f'{error_message}\n')
-            file.write(f'{"-"*20}END REQUEST{"-"*20}\n')
+            return {'error': error_message}
