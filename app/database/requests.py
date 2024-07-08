@@ -3,7 +3,7 @@ from app.database.models import User
 from sqlalchemy import select
 
 
-async def set_user(telegram_id: int) -> None:
+async def set_user(telegram_id: int, telegram_username: str) -> None:
     """
     Set user in the database if it doesn't exist.
 
@@ -18,7 +18,8 @@ async def set_user(telegram_id: int) -> None:
 
         # If user doesn't exist, add it to the database
         if not user:
-            session.add(User(telegram_id=telegram_id))
+            session.add(User(telegram_id=telegram_id,
+                             telegram_username=telegram_username))
             await session.commit()
 
 

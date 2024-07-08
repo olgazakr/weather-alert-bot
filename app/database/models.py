@@ -38,10 +38,19 @@ class User(Base):
     telegram_id: Mapped[int] = mapped_column(
         unique=True  # Unique constraint
     )
+    telegram_username: Mapped[str] = mapped_column(
+        nullable=True  # Allow null values
+    )
     latitude: Mapped[float] = mapped_column(
         nullable=True  # Allow null values
     )
     longitude: Mapped[float] = mapped_column(
+        nullable=True  # Allow null values
+    )
+    is_notified: Mapped[bool] = mapped_column(
+        default=False  # Set default value to True
+    )
+    notified_conditions: Mapped[str] = mapped_column(
         nullable=True  # Allow null values
     )
 

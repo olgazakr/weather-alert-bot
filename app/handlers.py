@@ -36,7 +36,9 @@ async def start_bot(message: Message, state: FSMContext):
     Handler for the /start command.
     Sets the user in the database and starts the bot's state machine.
     """
-    await requests.set_user(message.from_user.id)
+    telegram_id = message.from_user.id
+    telegram_username = message.from_user.username
+    await requests.set_user(telegram_id, telegram_username)
     await state.set_state(Location.input_location)
     await message.answer('Напишите населённый пункт,'
                          'на который Вы хотите настроить бота 🌎🌏🌍')

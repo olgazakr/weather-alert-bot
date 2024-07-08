@@ -43,29 +43,51 @@ async def fetch_and_notify_users(bot: Bot, token: str):
                     user.longitude,
                     token
                 )
-                if 'error' in weather:
-                    continue
 
                 weather_main = weather['weather'][0]['main']
                 weather_temp = weather['main']['temp']
                 weather_speed = weather['wind']['speed']
-                # Check for severe weather conditions
-                if weather_main in (
-                    'Rain', 'Snow', 'Thunderstorm', 'Drizzle', 'Squall',
-                    'Mist', 'Haze', 'Fog', 'Dust', 'Smoke', 'Ash', 'Tornado'
-                ) or weather_temp > 35 or weather_temp < -15 or weather_speed > 10:
-                    # Build message body
-                    message_body = {
-                        'weather': weather['weather'][0]['description'],
-                        'temp': weather['main']['temp'],
-                        'wind': weather['wind']['speed']
-                    }
-                    # Build message
-                    message = f'ВНИМАНИЕ!\n{message_body["weather"].title()}\n' \
-                              f'Температура: {message_body["temp"]}°C\n' \
-                              f'Скорость ветра: {message_body["wind"]} м/с'
-                    # Send message to user
-                    await bot.send_message(user.telegram_id, message)
+                notified_condition = f"{weather_main}-{weather_temp}-{weather_speed}"
+
+                # Check if user was notified
+                if user.is_notified:
+                    # Notify user if a new 'bad' condition arises
+                    if weather_main in (
+                        'Rain', 'Snow', 'Thunderstorm', 'Drizzle', 'Squall',
+                        'Mist', 'Haze', 'Fog', 'Dust', 'Smoke', 'Ash', 'Tornado'
+                    ) or weather_temp > 35 or weather_temp < -15 or weather_speed > 10:
+                        if notified_condition != user.notified_condition:
+                            user.notified_condition = notified_condition
+                            await session.commit()
+
+                            message_body = {
+                                'weather': weather['weather'][0]['description'],
+                                'temp': weather['main']['temp'],
+                                'wind': weather['wind']['speed']
+                            }
+                            message = f'⚠️ ВНИМАНИЕ! ⚠️\n{message_body["weather"].title()}\n' \
+                                    f'Температура: {message_body["temp"]}°C 🌡️\n' \
+                                    f'Скорость ветра: {message_body["wind"]} м/с 🌬️'
+                            await bot.send_message(user.telegram_id, message)
+                else:
+                    # Notify user for severe weather conditions
+                    if weather_main in (
+                        'Rain', 'Snow', 'Thunderstorm', 'Drizzle', 'Squall',
+                        'Mist', 'Haze', 'Fog', 'Dust', 'Smoke', 'Ash', 'Tornado'
+                    ) or weather_temp > 35 or weather_temp < -15 or weather_speed > 10:
+                        user.is_notified = True
+                        user.notified_condition = notified_condition
+                        await session.commit()
+
+                        message_body = {
+                            'weather': weather['weather'][0]['description'],
+                            'temp': weather['main']['temp'],
+                            'wind': weather['wind']['speed']
+                        }
+                        message = f'⚠️ ВНИМАНИЕ! ⚠️\n{message_body["weather"].title()}\n' \
+                                f'Температура: {message_body["temp"]}°C 🌡️\n' \
+                                f'Скорость ветра: {message_body["wind"]} м/с 🌬️'
+                        await bot.send_message(user.telegram_id, message)
 
 
 def start_scheduler(bot: Bot, token: str):
@@ -97,4 +119,3 @@ def start_scheduler(bot: Bot, token: str):
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     logger.info("Scheduler started at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
