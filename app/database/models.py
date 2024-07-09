@@ -50,7 +50,7 @@ class User(Base):
     is_notified: Mapped[bool] = mapped_column(
         default=False  # Set default value to True
     )
-    notified_conditions: Mapped[str] = mapped_column(
+    notified_condition: Mapped[str] = mapped_column(
         nullable=True  # Allow null values
     )
 
