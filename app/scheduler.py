@@ -81,10 +81,12 @@ async def fetch_and_notify_users(bot: Bot, token: str):
 
                         message_body = {
                             'weather': weather['weather'][0]['description'],
+                            'icon': weather['weather'][0]['icon'],
                             'temp': weather['main']['temp'],
                             'wind': weather['wind']['speed']
                         }
-                        message = f'⚠️ ВНИМАНИЕ! ⚠️\n{message_body["weather"].title()}\n' \
+                        message = f'⚠️ ВНИМАНИЕ! ⚠️\n{message_body["weather"].title()}' \
+                                f' {message_body["icon"]}\n' \
                                 f'Температура: {message_body["temp"]}°C 🌡️\n' \
                                 f'Скорость ветра: {message_body["wind"]} м/с 🌬️'
                         await bot.send_message(user.telegram_id, message)
